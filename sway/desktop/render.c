@@ -18,6 +18,7 @@
 #include "sway/config.h"
 #include "sway/input/input-manager.h"
 #include "sway/input/seat.h"
+#include "sway/input/text_input.h"
 #include "sway/layers.h"
 #include "sway/output.h"
 #include "sway/server.h"
@@ -205,6 +206,16 @@ static void render_unmanaged(struct sway_output *output,
 		render_surface_iterator, &data);
 }
 #endif
+
+static void render_input_popups(struct sway_output *output,
+		pixman_region32_t *damage, struct wl_list *input_popups) {
+	struct render_data data = {
+		.damage = damage,
+		.alpha = 1.0f,
+	};
+	output_input_popups_for_each_surface(output, input_popups,
+		render_surface_iterator, &data);
+}
 
 static void render_drag_icons(struct sway_output *output,
 		const pixman_region32_t *damage, struct wl_list *drag_icons) {
@@ -1033,6 +1044,9 @@ void output_render(struct sway_output *output, pixman_region32_t *damage) {
 	struct wlr_output *wlr_output = output->wlr_output;
 	struct wlr_renderer *renderer = output->server->renderer;
 
+	struct sway_seat *seat = input_manager_current_seat();
+	struct sway_container *focus = seat_get_focused_container(seat);
+
 	struct sway_workspace *workspace = output->current.active_workspace;
 	if (workspace == NULL) {
 		return;
@@ -1166,8 +1180,6 @@ void output_render(struct sway_output *output, pixman_region32_t *damage) {
 
 	render_seatops(output, damage);
 
-	struct sway_seat *seat = input_manager_current_seat();
-	struct sway_container *focus = seat_get_focused_container(seat);
 	if (focus && focus->view) {
 		render_view_popups(focus->view, output, damage, focus->alpha);
 	}
@@ -1177,6 +1189,7 @@ render_overlay:
 		&output->layers[ZWLR_LAYER_SHELL_V1_LAYER_OVERLAY]);
 	render_layer_popups(output, damage,
 		&output->layers[ZWLR_LAYER_SHELL_V1_LAYER_OVERLAY]);
+	render_input_popups(output, damage, &seat->im_relay.input_popups);
 	render_drag_icons(output, damage, &root->drag_icons);
 
 renderer_end:
