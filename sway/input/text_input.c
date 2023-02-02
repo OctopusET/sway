@@ -45,9 +45,9 @@ static void input_popup_damage(struct sway_input_popup *popup) {
 	}
 
 	struct wlr_surface *focused_surface = text_input->input->focused_surface;
-	if (wlr_surface_is_layer_surface(focused_surface)) {
-		struct wlr_layer_surface_v1 *layer_surface =
-			wlr_layer_surface_v1_from_wlr_surface(focused_surface);
+	struct wlr_layer_surface_v1 *layer_surface =
+		wlr_layer_surface_v1_try_from_wlr_surface(focused_surface);
+	if (layer_surface != NULL) {
 		struct sway_layer_surface *layer =
 			layer_from_wlr_layer_surface_v1(layer_surface);
 		output_damage_surface(layer->layer_surface->output->data,
@@ -89,9 +89,9 @@ static void input_popup_update(struct sway_input_popup *popup) {
 	struct wlr_output *output;
 	struct wlr_box output_box;
 	struct wlr_box parent;
-	if (wlr_surface_is_layer_surface(focused_surface)) {
-		struct wlr_layer_surface_v1 *layer_surface =
-			wlr_layer_surface_v1_from_wlr_surface(focused_surface);
+	struct wlr_layer_surface_v1 *layer_surface =
+		wlr_layer_surface_v1_try_from_wlr_surface(focused_surface);
+	if (layer_surface != NULL) {
 		struct sway_layer_surface *layer =
 			layer_from_wlr_layer_surface_v1(layer_surface);
 		output = layer->layer_surface->output;
@@ -186,9 +186,9 @@ static void input_popup_send_outputs(struct sway_input_popup *popup,
 		return;
 	}
 	struct wlr_surface *focused_surface = text_input->input->focused_surface;
-	if (wlr_surface_is_layer_surface(focused_surface)) {
-		struct wlr_layer_surface_v1 *layer_surface =
-			wlr_layer_surface_v1_from_wlr_surface(focused_surface);
+	struct wlr_layer_surface_v1 *layer_surface =
+		wlr_layer_surface_v1_try_from_wlr_surface(focused_surface);
+	if (layer_surface != NULL) {
 		struct sway_layer_surface *layer =
 			layer_from_wlr_layer_surface_v1(layer_surface);
 		wlr_surface_for_each_surface(popup->popup_surface->surface,
@@ -252,10 +252,9 @@ static void input_popup_set_focus(struct sway_input_popup *popup,
 		input_popup_update(popup);
 		return;
 	}
-
-	if (wlr_surface_is_layer_surface(surface)) {
-		struct wlr_layer_surface_v1 *layer_surface =
-			wlr_layer_surface_v1_from_wlr_surface(surface);
+	struct wlr_layer_surface_v1 *layer_surface =
+		wlr_layer_surface_v1_try_from_wlr_surface(surface);
+	if (layer_surface != NULL) {
 		struct sway_layer_surface *layer =
 			layer_from_wlr_layer_surface_v1(layer_surface);
 		wl_signal_add(
@@ -314,9 +313,9 @@ bool sway_input_popup_get_position(
 	}
 
 	struct wlr_surface *focused_surface = text_input->input->focused_surface;
-	if (wlr_surface_is_layer_surface(focused_surface)) {
-		struct wlr_layer_surface_v1 *layer_surface =
-			wlr_layer_surface_v1_from_wlr_surface(focused_surface);
+	struct wlr_layer_surface_v1 *layer_surface =
+		wlr_layer_surface_v1_try_from_wlr_surface(focused_surface);
+	if (layer_surface != NULL) {
 		struct sway_layer_surface *layer =
 			layer_from_wlr_layer_surface_v1(layer_surface);
 		*lx = layer->geo.x + popup->x;

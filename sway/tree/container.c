@@ -392,7 +392,7 @@ static bool surface_is_popup(struct wlr_surface *surface) {
 		}
 		surface = subsurface->parent;
 	}
-	if (wlr_surface_is_input_popup_surface_v2(surface)) {
+	if (wlr_input_popup_surface_v2_try_from_wlr_surface(surface) != NULL) {
 		return true;
 	}
 	struct wlr_xdg_surface *xdg_surface =
